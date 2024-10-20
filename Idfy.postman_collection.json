@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "8efd3099-9852-48b6-813d-70162c4d1d8f",
+		"name": "Idfy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33520729"
+	},
+	"item": [
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:3001/tokens/create",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"tokens",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/tokens/assign",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"tokens",
+						"assign"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/tokens/delete?token=0483b0879dcfab70408f1b9df4260470",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"tokens",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "0483b0879dcfab70408f1b9df4260470"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "unblock",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"token\":\"bf496512cf66179854c7def29903b666\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/tokens/unblock",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"tokens",
+						"unblock"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "keep alive",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"token\":\"bf496512cf66179854c7def29903b666\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/tokens/keep-alive",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"tokens",
+						"keep-alive"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
