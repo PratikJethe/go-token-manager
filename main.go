@@ -52,10 +52,9 @@ func main() {
 	serverConfig := server.NewServerConfig()
 
 	server := server.NewServer(serverConfig)
+	log.Print("Server Initiated!")
 	if err := server.Start(); err != nil {
 		log.Fatal("Error while starting server", err.Error())
 	}
-
-	log.Print("Server Initiated!")
 
 }

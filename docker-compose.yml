@@ -29,10 +29,18 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      MIGRATION_FILE_PATH : ${MIGRATION_FILE_PATH}
+      SERVER_HOST : ${SERVER_HOST}
+      SERVER_PORT : ${SERVER_PORT}
+      TOKEN_LENGTH : ${TOKEN_LENGTH}
+      TOKEN_EXPIRATION_DURATION : ${TOKEN_EXPIRATION_DURATION}
+      TOKEN_ACTIVE_DURATION : ${TOKEN_ACTIVE_DURATION}
     depends_on:
       - db
+    volumes:
+      - ./db/migrations:/app/db/migrations  
     ports:
-      - "8080:8080"
+      - "3000:3000"
 
 volumes:
   postgres_data:
