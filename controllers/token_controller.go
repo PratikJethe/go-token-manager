@@ -46,7 +46,7 @@ func (controller *TokenController) CreateTokenHandler(w http.ResponseWriter, r *
 	json.NewEncoder(w).Encode(token)
 }
 
-func (c *TokenController) AssignToken(w http.ResponseWriter, r *http.Request) {
+func (c *TokenController) AssignTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		w.Header().Set("Content-Type", "application/json")
@@ -110,5 +110,48 @@ func (c *TokenController) DeleteTokenHandler(w http.ResponseWriter, r *http.Requ
 	// Return success response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Token deleted"}) // 204 No Content
+	json.NewEncoder(w).Encode(map[string]string{"message": "Token deleted successfully"})
+}
+
+func (c *TokenController) UnblockTokenHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid http method"})
+		return
+	}
+	type UnblockRequest struct {
+		Token string `json:"token"`
+	}
+	var req UnblockRequest
+
+	// Parse the request body to get the token
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil || req.Token == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Token is required in the request body"})
+		return
+
+	}
+
+	// Call the service to unblock the token
+	err = c.tokenService.UnblockToken(req.Token)
+	if err != nil {
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err.Error() == constants.TOKEN_UNBLOCK_ERR.Error() {
+			json.NewEncoder(w).Encode(map[string]string{"error": "Token already Deleted/Expired/Unblocked"})
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error while unblocking token"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Token unblocked successfully"})
 }

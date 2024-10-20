@@ -78,17 +78,46 @@ func (r *TokenRepository) DeleteToken(token string) error {
 
 	res, err := r.DB.Exec(query, token)
 	if err != nil {
-		return err
+		log.Println(err.Error())
+		return constants.DB_OPERATION_ERR
 	}
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		return err
+		log.Println(err.Error())
+		return constants.DB_OPERATION_ERR
 	}
 
 	if rowsAffected == 0 {
 		return constants.ERR_TOKEN_ALREADY_DELETED
 	}
+
+	return nil
+}
+
+func (r *TokenRepository) UnblockToken(token string, activeDuration int) error {
+	// Create a transaction to ensure atomicity
+	query := `
+		UPDATE token_schema.tokens
+		SET last_activation_time = NULL
+		WHERE token = $1 
+		AND is_deleted != true 
+		AND last_activation_time IS NOT NULL
+		AND last_activation_time + make_interval(secs => $2) > NOW()
+		RETURNING id;
+	`
+
+	var id int
+	err := r.DB.QueryRow(query, token, activeDuration).Scan(&id)
+	if err != nil {
+		log.Println(err.Error())
+		if err == sql.ErrNoRows {
+			return constants.TOKEN_UNBLOCK_ERR
+		}
+		return constants.DB_OPERATION_ERR
+	}
+
+	// Commit the transaction
 
 	return nil
 }

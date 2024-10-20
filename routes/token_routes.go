@@ -8,6 +8,8 @@ import (
 
 func RegisterTokenRoutes(tokenController *controllers.TokenController) {
 	http.HandleFunc("/tokens/create", tokenController.CreateTokenHandler)
-	http.HandleFunc("/tokens/assign", tokenController.AssignToken)
+	http.HandleFunc("/tokens/assign", tokenController.AssignTokenHandler)
 	http.HandleFunc("/tokens/delete", tokenController.DeleteTokenHandler)
+	http.HandleFunc("/tokens/unblock", tokenController.UnblockTokenHandler)
+
 }

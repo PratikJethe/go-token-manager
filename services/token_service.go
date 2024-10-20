@@ -63,3 +63,12 @@ func (s *TokenService) AssignToken() (*models.Token, error) {
 func (s *TokenService) DeleteToken(token string) error {
 	return s.tokenRepo.DeleteToken(token)
 }
+
+func (s *TokenService) UnblockToken(token string) error {
+	// Use the repository to update the token status
+	err := s.tokenRepo.UnblockToken(token, s.tokenConfig.TokenActiveDuration)
+	if err != nil {
+		return err
+	}
+	return nil
+}
