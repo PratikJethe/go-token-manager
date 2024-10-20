@@ -9,12 +9,13 @@ import (
 )
 
 type DBConfig struct {
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	DBUri      string
+	DBHost            string
+	DBPort            string
+	DBUser            string
+	DBPassword        string
+	DBName            string
+	DBUri             string
+	MigrationFilePath string
 }
 
 func GetConfig() (*DBConfig, error) {
@@ -23,8 +24,9 @@ func GetConfig() (*DBConfig, error) {
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
+	dbMigrationPath := os.Getenv("MIGRATION_FILE_PATH")
 
-	if dbHost == "" || dbPort == "" || dbUser == "" || dbPassword == "" || dbName == "" {
+	if dbHost == "" || dbPort == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbMigrationPath == "" {
 		return nil, fmt.Errorf("missing required environment variables")
 	}
 	dbURI := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
@@ -37,6 +39,8 @@ func GetConfig() (*DBConfig, error) {
 		DBPassword: dbPassword,
 		DBName:     dbName,
 		DBUri:      dbURI,
+		MigrationFilePath: fmt.Sprintf("file://%s",
+			dbMigrationPath),
 	}, nil
 }
 

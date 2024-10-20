@@ -15,14 +15,20 @@ func main() {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
+	// Load db config
 	dbConfig, err := db.GetConfig()
-
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	_, err = db.InitDB(dbConfig.DBUri)
+	// Run Migrations
+	err = db.DBMigrationUP(*dbConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	// Initiate DB connection
+	_, err = db.InitDB(dbConfig.DBUri)
 	if err != nil {
 		log.Fatalf("Error while connecting to DB : %v ", err.Error())
 	}
