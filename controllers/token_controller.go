@@ -72,3 +72,43 @@ func (c *TokenController) AssignToken(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func (c *TokenController) DeleteTokenHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the token from the URL parameters
+
+	if r.Method != http.MethodDelete {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid http method"})
+		return
+	}
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Token string is required"})
+
+		return
+	}
+
+	// Call the service to delete the token
+	err := c.tokenService.DeleteToken(token)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+
+		if err.Error() == constants.ERR_TOKEN_ALREADY_DELETED.Error() {
+			json.NewEncoder(w).Encode(map[string]string{"error": "Token Not found or already deleted"})
+			return
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error while deleting token"})
+		return
+	}
+
+	// Return success response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Token deleted"}) // 204 No Content
+}

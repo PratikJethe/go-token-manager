@@ -59,3 +59,7 @@ func (s *TokenService) AssignToken() (*models.Token, error) {
 
 	return token, nil
 }
+
+func (s *TokenService) DeleteToken(token string) error {
+	return s.tokenRepo.DeleteToken(token)
+}

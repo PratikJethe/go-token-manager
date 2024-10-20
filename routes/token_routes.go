@@ -9,5 +9,5 @@ import (
 func RegisterTokenRoutes(tokenController *controllers.TokenController) {
 	http.HandleFunc("/tokens/create", tokenController.CreateTokenHandler)
 	http.HandleFunc("/tokens/assign", tokenController.AssignToken)
-
+	http.HandleFunc("/tokens/delete", tokenController.DeleteTokenHandler)
 }

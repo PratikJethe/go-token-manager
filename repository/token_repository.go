@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/pratikjethe/go-token-manager/constants"
@@ -25,7 +25,8 @@ func (repo *TokenRepository) CreateToken(token *models.Token) error {
 	err := repo.DB.QueryRow(query, token.Token).
 		Scan(&token.ID, &token.CreatedAt, &token.UpdatedAt)
 	if err != nil {
-		return fmt.Errorf("Error while inserting token: %v", err)
+		log.Println(err.Error())
+		return constants.DB_OPERATION_ERR
 	}
 	return nil
 }
@@ -53,10 +54,11 @@ func (r *TokenRepository) GetAvailableToken(tx *sql.Tx, activeTokenDuration int,
 	)
 
 	if err != nil {
+		log.Println(err.Error())
 		if err == sql.ErrNoRows {
 			return nil, constants.ERR_NO_TOKENS
 		}
-		return nil, err
+		return nil, constants.DB_OPERATION_ERR
 	}
 	return &token, nil
 }
@@ -65,4 +67,28 @@ func (r *TokenRepository) AssignToken(tx *sql.Tx, token *models.Token) error {
 	query := `UPDATE token_schema.tokens SET last_activation_time = $1 WHERE id = $2`
 	_, err := tx.Exec(query, time.Now(), token.ID)
 	return err
+}
+
+func (r *TokenRepository) DeleteToken(token string) error {
+	query := `
+		UPDATE token_schema.tokens 
+		SET is_deleted = true 
+		WHERE token = $1 AND is_deleted = false
+	`
+
+	res, err := r.DB.Exec(query, token)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return constants.ERR_TOKEN_ALREADY_DELETED
+	}
+
+	return nil
 }
