@@ -1,37 +1,61 @@
 package services
 
 import (
-	"time"
-
+	"github.com/pratikjethe/go-token-manager/config"
 	"github.com/pratikjethe/go-token-manager/models"
 	repositories "github.com/pratikjethe/go-token-manager/repository"
 	"github.com/pratikjethe/go-token-manager/utils"
 )
 
 type TokenService struct {
-	tokenRepo *repositories.TokenRepository
+	tokenRepo   *repositories.TokenRepository
+	tokenConfig *config.TokenConfig
 }
 
-func NewTokenService(repo *repositories.TokenRepository) *TokenService {
-	return &TokenService{tokenRepo: repo}
+func NewTokenService(repo *repositories.TokenRepository, c *config.TokenConfig) *TokenService {
+	return &TokenService{tokenRepo: repo, tokenConfig: c}
 }
 
-func (service *TokenService) CreateToken(tokenSize int) (*models.Token, error) {
+func (s *TokenService) CreateToken() (*models.Token, error) {
 
-	t, err := utils.GenerateRandomToken(tokenSize)
+	t, err := utils.GenerateRandomToken(s.tokenConfig.TokenLength)
 
 	if err != nil {
 		return nil, err
 	}
 	token := &models.Token{
-		Token:              t,
-		LastActivationTime: time.Now().UTC(),
-		IsDeleted:          false,
+		Token: t,
 	}
 
-	err = service.tokenRepo.CreateToken(token)
+	err = s.tokenRepo.CreateToken(token)
 	if err != nil {
 		return nil, err
 	}
+	return token, nil
+}
+
+func (s *TokenService) AssignToken() (*models.Token, error) {
+	tx, err := s.tokenRepo.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := s.tokenRepo.GetAvailableToken(tx, s.tokenConfig.TokenActiveDuration, s.tokenConfig.TokenExpireDuration)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	err = s.tokenRepo.AssignToken(tx, token)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
 	return token, nil
 }

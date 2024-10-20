@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
+	"github.com/pratikjethe/go-token-manager/config"
 	"github.com/pratikjethe/go-token-manager/controllers"
 	db "github.com/pratikjethe/go-token-manager/db"
 	repositories "github.com/pratikjethe/go-token-manager/repository"
@@ -40,8 +41,9 @@ func main() {
 	log.Print("Succesfully connected to DB!")
 
 	// Initiate services, repositories, controllers
+	tokenConfig := config.NewTokenConfig()
 	tokenRepo := repositories.NewTokenRepository(dbConn)
-	tokenService := services.NewTokenService(tokenRepo)
+	tokenService := services.NewTokenService(tokenRepo, tokenConfig)
 	tokenController := controllers.NewTokenController(tokenService)
 
 	routes.RegisterTokenRoutes(tokenController)
