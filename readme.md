@@ -29,6 +29,13 @@ docker compose up -d
 docker compose down
 ```
 
+## To run tests
+- To run test use golang's inbuilt test command
+
+```sh
+go test ./...
+```
+
 ## Enviroment Variables
 - create your own `.env` file in the root of the project.
 
