@@ -155,3 +155,44 @@ func (c *TokenController) UnblockTokenHandler(w http.ResponseWriter, r *http.Req
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Token unblocked successfully"})
 }
+
+func (c *TokenController) KeepAliveTokenHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid http method"})
+		return
+	}
+	type UnblockRequest struct {
+		Token string `json:"token"`
+	}
+	var req UnblockRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil || req.Token == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Token is required in the request body"})
+		return
+
+	}
+
+	err = c.tokenService.KeepAliveToken(req.Token)
+	if err != nil {
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		if err.Error() == constants.TOKEN_KEEP_ALIVE_ERR.Error() {
+			json.NewEncoder(w).Encode(map[string]string{"error": "Token already Deleted/Expired/Unblocked"})
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error while keeping token alive"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Token kept alive"})
+}

@@ -72,3 +72,11 @@ func (s *TokenService) UnblockToken(token string) error {
 	}
 	return nil
 }
+
+func (s *TokenService) KeepAliveToken(token string) error {
+	err := s.tokenRepo.KeepAliveToken(token, s.tokenConfig.TokenExpireDuration)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -117,7 +117,30 @@ func (r *TokenRepository) UnblockToken(token string, activeDuration int) error {
 		return constants.DB_OPERATION_ERR
 	}
 
-	// Commit the transaction
+	return nil
+}
+
+func (r *TokenRepository) KeepAliveToken(token string, expirationDuration int) error {
+	// Create a transaction to ensure atomicity
+	query := `
+		UPDATE token_schema.tokens
+		SET last_activation_time = NOW()
+		WHERE token = $1 
+		AND is_deleted != true 
+		AND last_activation_time IS NOT NULL
+		AND last_activation_time + make_interval(secs => $2) > NOW()
+		RETURNING id;
+	`
+
+	var id int
+	err := r.DB.QueryRow(query, token, expirationDuration).Scan(&id)
+	if err != nil {
+		log.Println(err.Error())
+		if err == sql.ErrNoRows {
+			return constants.TOKEN_KEEP_ALIVE_ERR
+		}
+		return constants.DB_OPERATION_ERR
+	}
 
 	return nil
 }
